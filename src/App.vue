@@ -105,6 +105,7 @@ export default {
       isClicked.value = Array(9).fill(false);
       countClick.value = 0;
       winner.value = null;
+      pair.value = null;
     };
 
     const getIcon = (id) => {
@@ -164,7 +165,7 @@ img {
 }
 
 .buttonWinner {
-  padding: 5px;
+  padding: 8px;
   border: 1px solid black;
   border-radius: 15%;
   background-color: rgb(255, 255, 255);
