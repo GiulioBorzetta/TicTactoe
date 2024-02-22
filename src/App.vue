@@ -3,17 +3,31 @@
     <div class="title">
       <h1>TIC TAC TOE!</h1>
     </div>
-  <div class="container">
-    <div class="grid">
-      <div v-for="id in gridIds" :key="id" class="col" :id="id" @click="click(id)">
-        <div class="containerImg">
-          <img :src="getIcon(id)" />
+    <div class="container">
+      <div class="grid">
+        <div
+          v-for="id in gridIds"
+          :key="id"
+          class="col"
+          :id="id"
+          @click="click(id)"
+        >
+          <div class="containerImg">
+            <img :src="getIcon(id)" />
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <div v-if="winner" class="winner-message">
+    <div v-if="winner">
       <h3 class="winnerText">{{ winner }} ha vinto la partita!!</h3>
+      <div class="buttonDiv">
+        <h3>Vuoi ricominciare la partita?</h3>
+        <h3>=></h3>
+        <button class="buttonWinner" @click="reset">RESET</button>
+      </div>
+    </div>
+    <div v-if="pair">
+      <h3 class="winnerText">PAREGGIO!</h3>
       <div class="buttonDiv">
         <h3>Vuoi ricominciare la partita?</h3>
         <h3>=></h3>
@@ -24,45 +38,43 @@
 </template>
 
 <script>
-import { ref } from 'vue';
-import O from './components/icons/iconO.png';
-import X from './components/icons/iconX.png';
+import { ref } from "vue";
+import O from "./components/icons/iconO.png";
+import X from "./components/icons/iconX.png";
 
 export default {
   setup() {
     const icons = ref(Array(9).fill(null));
     const isClicked = ref(Array(9).fill(false));
     const countClick = ref(0);
-    const firstPlayer = prompt('nome primo giocatore');
-    const secondPlayer = prompt('nome secondo giocatore');
+    const firstPlayer = prompt("nome primo giocatore");
+    const secondPlayer = prompt("nome secondo giocatore");
     const winner = ref(null);
+    const pair = ref(null);
     const winningCombos = [
-      ['N1', 'N2', 'N3'], // Righe
-      ['N4', 'N5', 'N6'],
-      ['N7', 'N8', 'N9'],
-      ['N1', 'N4', 'N7'], // Colonne
-      ['N2', 'N5', 'N8'],
-      ['N3', 'N6', 'N9'],
-      ['N1', 'N5', 'N9'], // Diagonali
-      ['N3', 'N5', 'N7']
+      ["N1", "N2", "N3"],
+      ["N4", "N5", "N6"],
+      ["N7", "N8", "N9"],
+      ["N1", "N4", "N7"],
+      ["N2", "N5", "N8"],
+      ["N3", "N6", "N9"],
+      ["N1", "N5", "N9"],
+      ["N3", "N5", "N7"],
     ];
 
     const click = (id) => {
       const input = gridIds.indexOf(id);
       if (input !== -1 && !winner.value && !isClicked.value[input]) {
-        // Imposta l'icona in base al numero di click totali
         icons.value[input] = countClick.value % 2 === 0 ? X : O;
-        // Incrementa il numero di click totali
         countClick.value++;
-        // Imposta la casella come cliccata
         isClicked.value[input] = true;
-        // Controlla se c'è un vincitore dopo ogni click
         checkWinner();
       }
     };
 
-
     const checkWinner = () => {
+      let allClicked = true;
+
       for (const combo of winningCombos) {
         const [a, b, c] = combo;
         if (
@@ -70,36 +82,37 @@ export default {
           icons.value[gridIds.indexOf(a)] === icons.value[gridIds.indexOf(b)] &&
           icons.value[gridIds.indexOf(a)] === icons.value[gridIds.indexOf(c)]
         ) {
-          winner.value = icons.value[gridIds.indexOf(a)];
-
-          if(winner.value === '/src/components/icons/iconX.png'){
-              winner.value = firstPlayer;
-          }else{
-            winner.value = secondPlayer;
-          }
-
-          break; // Esci dal ciclo se c'è un vincitore
+          winner.value =
+            icons.value[gridIds.indexOf(a)] === X ? firstPlayer : secondPlayer;
+          return;
         }
+      }
+
+      for (const clicked of isClicked.value) {
+        if (!clicked) {
+          allClicked = false;
+          break;
+        }
+      }
+
+      if (allClicked && !winner.value) {
+        pair.value = "pareggio";
       }
     };
 
     const reset = () => {
-        // Reimposta le icone a null
-        icons.value = Array(9).fill(null);
-        // Reimposta lo stato di cliccate a falso
-        isClicked.value = Array(9).fill(false);
-        // Reimposta il numero di click a 0
-        countClick.value = 0;
-        // Reimposta il vincitore a null
-        winner.value = null;
+      icons.value = Array(9).fill(null);
+      isClicked.value = Array(9).fill(false);
+      countClick.value = 0;
+      winner.value = null;
     };
 
     const getIcon = (id) => {
       const input = gridIds.indexOf(id);
-      return input !== -1 ? icons.value[input] : '';
+      return input !== -1 ? icons.value[input] : "";
     };
 
-    const gridIds = ['N1', 'N2', 'N3', 'N4', 'N5', 'N6', 'N7', 'N8', 'N9'];
+    const gridIds = ["N1", "N2", "N3", "N4", "N5", "N6", "N7", "N8", "N9"];
 
     return {
       icons,
@@ -107,14 +120,14 @@ export default {
       getIcon,
       gridIds,
       winner,
-      reset
+      pair,
+      reset,
     };
-  }
-}
+  },
+};
 </script>
 
 <style>
-
 .container {
   display: flex;
   justify-content: center;
@@ -122,7 +135,7 @@ export default {
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 colonne per riga */
+  grid-template-columns: repeat(3, 1fr);
 }
 
 .col {
@@ -130,7 +143,7 @@ export default {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  border: 1px solid white;
+  border: 2px solid rgb(0, 0, 0);
   padding: 35px;
 }
 
@@ -144,31 +157,29 @@ img {
   align-items: center;
 }
 
-.winnerText{
+.winnerText {
   margin-top: 5px;
   text-align: center;
   text-decoration: underline;
 }
 
-.buttonWinner{
+.buttonWinner {
   padding: 5px;
   border: 1px solid black;
   border-radius: 15%;
-  background-color: white;
+  background-color: rgb(255, 255, 255);
   cursor: pointer;
-
 }
 
-.title{
+.title {
   text-align: center;
   margin-bottom: 20px;
   background-color: rgba(2, 2, 2, 0.24);
   border: 2px solid black;
 }
 
-.buttonDiv{
+.buttonDiv {
   display: flex;
   justify-content: space-evenly;
-
 }
 </style>
