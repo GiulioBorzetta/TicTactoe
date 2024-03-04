@@ -1,7 +1,27 @@
 <template>
-  <div>
-    <div class="title">
+      <div>
+        <div class="title">
       <h1>TIC TAC TOE!</h1>
+      <div>
+        <form>
+        <input class="inputPlayer colorPlayer1" placeholder="name player 1" id="player1" type="text" v-model="firstPlayer"/>
+<input class="inputPlayer colorPlayer2" placeholder="name player 2" id="player2" type="text" v-model="secondPlayer"/>
+
+      </form>
+      </div>
+      </div>
+    </div>
+  <div>
+    <div class="mb">
+    <div class="text-center">
+      <h3>Turno:</h3>
+      <h3 class="ml">{{countClick}} </h3>
+    </div>
+    <div class="text-center">
+      <h3>è il turno di:</h3>
+      <h3 :class="[player === firstPlayer ? 'colorPlayer1' : 'colorPlayer2', 'ml']">{{ player }}</h3>
+    </div>
+
     </div>
     <div class="container">
       <div class="grid">
@@ -47,10 +67,11 @@ export default {
     const icons = ref(Array(9).fill(null));
     const isClicked = ref(Array(9).fill(false));
     const countClick = ref(0);
-    const firstPlayer = prompt("nome primo giocatore");
-    const secondPlayer = prompt("nome secondo giocatore");
+    const firstPlayer = ref('');
+  const secondPlayer = ref('');
     const winner = ref(null);
     const pair = ref(null);
+    const player = ref(firstPlayer.value);
     const winningCombos = [
       ["N1", "N2", "N3"],
       ["N4", "N5", "N6"],
@@ -66,14 +87,30 @@ export default {
       const input = gridIds.indexOf(id);
       if (input !== -1 && !winner.value && !isClicked.value[input]) {
         icons.value[input] = countClick.value % 2 === 0 ? X : O;
+        if(icons.value[input] === O){
+          player.value = firstPlayer.value;
+        }else{
+          player.value = secondPlayer.value;
+        }   
         countClick.value++;
         isClicked.value[input] = true;
         checkWinner();
       }
     };
 
+    const checkPlayer = () => {
+  if (firstPlayer.value === '') {
+    firstPlayer.value = 'player1';
+  }
+  if (secondPlayer.value === '') {
+    secondPlayer.value = 'player2';
+  }
+};
+
+
     const checkWinner = () => {
       let allClicked = true;
+      checkPlayer();
 
       for (const combo of winningCombos) {
         const [a, b, c] = combo;
@@ -106,6 +143,7 @@ export default {
       countClick.value = 0;
       winner.value = null;
       pair.value = null;
+      player.value = firstPlayer;
     };
 
     const getIcon = (id) => {
@@ -123,6 +161,11 @@ export default {
       winner,
       pair,
       reset,
+      firstPlayer,
+      secondPlayer,
+      checkPlayer,
+      player,
+      countClick
     };
   },
 };
@@ -144,18 +187,24 @@ export default {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  border: 2px solid rgb(0, 0, 0);
+  border: 2px solid yellow;
+  background-color: rgb(131, 131, 131);
   padding: 35px;
-}
-
-img {
-  width: 50px;
+  transition: all 0.3s ease;
 }
 
 .containerImg {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  width: 50px;
+  height: 50px;
+}
+
+.col:hover {
+  transform: scale(1.1);
+}
+
+.img-cell img {
+  width: 100%;
+  height: 100%;
 }
 
 .winnerText {
@@ -182,5 +231,34 @@ img {
 .buttonDiv {
   display: flex;
   justify-content: space-evenly;
+}
+
+.inputPlayer {
+  border: 1px solid white;
+  background-color: black;
+  text-align: center;
+  margin: 10px;
+}
+
+.colorPlayer1{
+  color: red;
+}
+
+.colorPlayer2{
+  color: blue;
+}
+
+.text-center {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+
+.ml{
+  margin-left: 5px;
+}
+
+.mb{
+  margin-bottom: 5px;
 }
 </style>
