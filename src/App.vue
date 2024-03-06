@@ -1,59 +1,9 @@
 <template>
-      <div>
-        <div class="title">
-      <h1>TIC TAC TOE!</h1>
-      <div>
-        <form>
-        <input class="inputPlayer colorPlayer1" placeholder="name player 1" id="player1" type="text" v-model="firstPlayer"/>
-<input class="inputPlayer colorPlayer2" placeholder="name player 2" id="player2" type="text" v-model="secondPlayer"/>
-
-      </form>
-      </div>
-      </div>
-    </div>
   <div>
-    <div class="mb">
-    <div class="text-center">
-      <h3>Turno:</h3>
-      <h3 class="ml">{{countClick}} </h3>
-    </div>
-    <div class="text-center">
-      <h3>è il turno di:</h3>
-      <h3 :class="[player === firstPlayer ? 'colorPlayer1' : 'colorPlayer2', 'ml']">{{ player }}</h3>
-    </div>
-
-    </div>
-    <div class="container">
-      <div class="grid">
-        <div
-          v-for="id in gridIds"
-          :key="id"
-          class="col"
-          :id="id"
-          @click="click(id)"
-        >
-          <div class="containerImg">
-            <img :src="getIcon(id)" />
-          </div>
-        </div>
-      </div>
-    </div>
-    <div v-if="winner">
-      <h3 class="winnerText">{{ winner }} ha vinto la partita!!</h3>
-      <div class="buttonDiv">
-        <h3>Vuoi ricominciare la partita?</h3>
-        <h3>=></h3>
-        <button class="buttonWinner" @click="reset">RESET</button>
-      </div>
-    </div>
-    <div v-if="pair">
-      <h3 class="winnerText">PAREGGIO!</h3>
-      <div class="buttonDiv">
-        <h3>Vuoi ricominciare la partita?</h3>
-        <h3>=></h3>
-        <button class="buttonWinner" @click="reset">RESET</button>
-      </div>
-    </div>
+    <titolo-component :firstPlayer="firstPlayer" @update:firstPlayer="updateFirstPlayer" :secondPlayer="secondPlayer" @update:secondPlayer="updateSecondPlayer" />
+    <turno-component :countClick="countClick" :player="player" :firstPlayer="firstPlayer" />
+    <tabellone-component :gridIds="gridIds" :click="click" :getIcon="getIcon" />
+    <vincitore-component :winner="winner" :pair="pair" :reset="reset" />
   </div>
 </template>
 
@@ -61,14 +11,24 @@
 import { ref } from "vue";
 import O from "./components/icons/iconO.png";
 import X from "./components/icons/iconX.png";
+import TitoloComponent from './components/TitoloComponent.vue';
+import TurnoComponent from './components/TurnoComponent.vue';
+import TabelloneComponent from './components/TabelloneComponent.vue';
+import VincitoreComponent from './components/VincitoreComponent.vue';
 
 export default {
+  components: {
+    TitoloComponent,
+    TurnoComponent,
+    TabelloneComponent,
+    VincitoreComponent
+  },
   setup() {
     const icons = ref(Array(9).fill(null));
     const isClicked = ref(Array(9).fill(false));
     const countClick = ref(0);
     const firstPlayer = ref('');
-  const secondPlayer = ref('');
+    const secondPlayer = ref('');
     const winner = ref(null);
     const pair = ref(null);
     const player = ref(firstPlayer.value);
@@ -82,6 +42,14 @@ export default {
       ["N1", "N5", "N9"],
       ["N3", "N5", "N7"],
     ];
+
+    const updateFirstPlayer = (value) => {
+      firstPlayer.value = value;
+    };
+    
+    const updateSecondPlayer = (value) => {
+      secondPlayer.value = value;
+    };
 
     const click = (id) => {
       const input = gridIds.indexOf(id);
@@ -99,14 +67,13 @@ export default {
     };
 
     const checkPlayer = () => {
-  if (firstPlayer.value === '') {
-    firstPlayer.value = 'player1';
-  }
-  if (secondPlayer.value === '') {
-    secondPlayer.value = 'player2';
-  }
-};
-
+      if (firstPlayer.value === '') {
+        firstPlayer.value = 'player1';
+      }
+      if (secondPlayer.value === '') {
+        secondPlayer.value = 'player2';
+      }
+    };
 
     const checkWinner = () => {
       let allClicked = true;
@@ -165,100 +132,10 @@ export default {
       secondPlayer,
       checkPlayer,
       player,
-      countClick
+      countClick,
+      updateFirstPlayer,
+      updateSecondPlayer
     };
   },
 };
 </script>
-
-<style>
-.container {
-  display: flex;
-  justify-content: center;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-}
-
-.col {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  border: 2px solid yellow;
-  background-color: rgb(131, 131, 131);
-  padding: 35px;
-  transition: all 0.3s ease;
-}
-
-.containerImg {
-  width: 50px;
-  height: 50px;
-}
-
-.col:hover {
-  transform: scale(1.1);
-}
-
-.img-cell img {
-  width: 100%;
-  height: 100%;
-}
-
-.winnerText {
-  margin-top: 5px;
-  text-align: center;
-  text-decoration: underline;
-}
-
-.buttonWinner {
-  padding: 8px;
-  border: 1px solid black;
-  border-radius: 15%;
-  background-color: rgb(255, 255, 255);
-  cursor: pointer;
-}
-
-.title {
-  text-align: center;
-  margin-bottom: 20px;
-  background-color: rgba(2, 2, 2, 0.24);
-  border: 2px solid black;
-}
-
-.buttonDiv {
-  display: flex;
-  justify-content: space-evenly;
-}
-
-.inputPlayer {
-  border: 1px solid white;
-  background-color: black;
-  text-align: center;
-  margin: 10px;
-}
-
-.colorPlayer1{
-  color: red;
-}
-
-.colorPlayer2{
-  color: blue;
-}
-
-.text-center {
-  display: flex;
-  justify-content: center;
-  text-align: center;
-}
-
-.ml{
-  margin-left: 5px;
-}
-
-.mb{
-  margin-bottom: 5px;
-}
-</style>
